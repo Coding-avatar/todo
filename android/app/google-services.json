@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "419844430152",
+    "project_id": "daytrack-52b05",
+    "storage_bucket": "daytrack-52b05.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419844430152:android:15fcc00a57d82d51507b7d",
+        "android_client_info": {
+          "package_name": "com.example.todo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7otrkLCHdz60KUfuC8i3cRH_X9-ZR0j4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
