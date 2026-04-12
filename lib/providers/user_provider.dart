@@ -24,7 +24,7 @@ final userLevelProvider = Provider<UserLevel>((ref) {
   return userAsync.when(
     data: (user) => user?.level ?? UserLevel.beginner,
     loading: () => UserLevel.beginner,
-    error: (_, __) => UserLevel.beginner,
+    error: (_, _) => UserLevel.beginner,
   );
 });
 
@@ -34,7 +34,7 @@ final onboardingCompleteProvider = Provider<bool>((ref) {
   return userAsync.when(
     data: (user) => user?.onboardingComplete ?? false,
     loading: () => false,
-    error: (_, __) => false,
+    error: (_, _) => false,
   );
 });
 

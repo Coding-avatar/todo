@@ -25,8 +25,9 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.habit.name);
-    _descriptionController =
-        TextEditingController(text: widget.habit.description ?? '');
+    _descriptionController = TextEditingController(
+      text: widget.habit.description ?? '',
+    );
     _selectedCategory = widget.habit.categoryId != null
         ? Category.defaults.firstWhere(
             (c) => c.id == widget.habit.categoryId,
@@ -65,9 +66,9 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) {
@@ -84,7 +85,8 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
       builder: (context) => AlertDialog(
         title: const Text('Delete Habit?'),
         content: const Text(
-            'This will delete the habit and all its completion history. This action cannot be undone.'),
+          'This will delete the habit and all its completion history. This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -102,7 +104,9 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
     );
 
     if (confirmed == true && mounted) {
-      await ref.read(habitNotifierProvider.notifier).deleteHabit(widget.habit.id);
+      await ref
+          .read(habitNotifierProvider.notifier)
+          .deleteHabit(widget.habit.id);
       if (mounted) {
         Navigator.pop(context);
       }
@@ -110,15 +114,14 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
   }
 
   Future<void> _handleArchive() async {
-    await ref.read(habitNotifierProvider.notifier).toggleHabitActive(
-          widget.habit.id,
-          false,
-        );
+    await ref
+        .read(habitNotifierProvider.notifier)
+        .toggleHabitActive(widget.habit.id, false);
     if (mounted) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Habit archived')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Habit archived')));
     }
   }
 
@@ -142,14 +145,13 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
               Row(
                 children: [
                   const Spacer(),
-                  Text(
-                    'Edit Habit',
-                    style: theme.textTheme.headlineSmall,
-                  ),
+                  Text('Edit Habit', style: theme.textTheme.headlineSmall),
                   const Spacer(),
                   IconButton(
-                    icon: Icon(Icons.delete_outline,
-                        color: theme.colorScheme.error),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: theme.colorScheme.error,
+                    ),
                     onPressed: _handleDelete,
                   ),
                 ],
@@ -186,7 +188,7 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
                   );
                 },
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
               ),
 
               const SizedBox(height: 24),
@@ -221,10 +223,7 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
               const SizedBox(height: 16),
 
               // Category
-              Text(
-                'Category (optional)',
-                style: theme.textTheme.labelLarge,
-              ),
+              Text('Category (optional)', style: theme.textTheme.labelLarge),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,

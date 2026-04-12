@@ -67,7 +67,7 @@ class Category extends Equatable {
     return {
       'id': id,
       'name': name,
-      'color': color.value,
+      'color': color.toARGB32(),
       'order': order,
     };
   }

@@ -64,7 +64,7 @@ final todayCompletionProvider = Provider<Map<String, bool>>((ref) {
       };
     },
     loading: () => {},
-    error: (_, __) => {},
+    error: (_, _) => {},
   );
 });
 

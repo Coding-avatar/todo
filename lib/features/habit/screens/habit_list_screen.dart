@@ -11,9 +11,7 @@ class HabitListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final habitsAsync = ref.watch(activeHabitsProvider);
-    final futureHabitsAsync = ref.watch(futureHabitsProvider);
 
     return Scaffold(
       appBar: AppBar(

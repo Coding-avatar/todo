@@ -12,15 +12,10 @@ class InsightsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final userLevel = ref.watch(userLevelProvider);
-    final allTodosAsync = ref.watch(allTodosProvider);
-    final activeHabitsAsync = ref.watch(activeHabitsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Insights'),
-      ),
+      appBar: AppBar(title: const Text('Insights')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -65,9 +60,15 @@ class _QuickStatsCard extends ConsumerWidget {
 
     return allTodosAsync.when(
       data: (todos) {
-        final completed = todos.where((t) => t.status == TodoStatus.completed).length;
-        final pending = todos.where((t) => t.status == TodoStatus.pending).length;
-        final completionRate = todos.isEmpty ? 0 : (completed / todos.length * 100).round();
+        final completed = todos
+            .where((t) => t.status == TodoStatus.completed)
+            .length;
+        final pending = todos
+            .where((t) => t.status == TodoStatus.pending)
+            .length;
+        final completionRate = todos.isEmpty
+            ? 0
+            : (completed / todos.length * 100).round();
 
         return Card(
           child: Padding(
@@ -75,10 +76,7 @@ class _QuickStatsCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Overview',
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text('Overview', style: theme.textTheme.titleMedium),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -121,7 +119,7 @@ class _QuickStatsCard extends ConsumerWidget {
                         );
                       },
                       loading: () => const Expanded(child: SizedBox.shrink()),
-                      error: (_, __) => const Expanded(child: SizedBox.shrink()),
+                      error: (_, _) => const Expanded(child: SizedBox.shrink()),
                     ),
                   ],
                 ),
@@ -130,9 +128,8 @@ class _QuickStatsCard extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Card(
-        child: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Card(child: Center(child: CircularProgressIndicator())),
       error: (e, _) => Card(child: Text('Error: $e')),
     );
   }
@@ -164,10 +161,7 @@ class _StatItem extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        Text(
-          label,
-          style: theme.textTheme.bodySmall,
-        ),
+        Text(label, style: theme.textTheme.bodySmall),
       ],
     );
   }
@@ -181,9 +175,15 @@ class _TaskCompletionChart extends ConsumerWidget {
 
     return allTodosAsync.when(
       data: (todos) {
-        final completed = todos.where((t) => t.status == TodoStatus.completed).length;
-        final pending = todos.where((t) => t.status == TodoStatus.pending).length;
-        final dismissed = todos.where((t) => t.status == TodoStatus.dismissed).length;
+        final completed = todos
+            .where((t) => t.status == TodoStatus.completed)
+            .length;
+        final pending = todos
+            .where((t) => t.status == TodoStatus.pending)
+            .length;
+        final dismissed = todos
+            .where((t) => t.status == TodoStatus.dismissed)
+            .length;
         final total = todos.length;
 
         if (total == 0) {
@@ -191,10 +191,7 @@ class _TaskCompletionChart extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Center(
-                child: Text(
-                  'No tasks yet',
-                  style: theme.textTheme.bodyMedium,
-                ),
+                child: Text('No tasks yet', style: theme.textTheme.bodyMedium),
               ),
             ),
           );
@@ -206,10 +203,7 @@ class _TaskCompletionChart extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Task Distribution',
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text('Task Distribution', style: theme.textTheme.titleMedium),
                 const SizedBox(height: 16),
                 SizedBox(
                   height: 200,
@@ -289,12 +283,12 @@ class _HabitStreaksCard extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.local_fire_department, color: Color(0xFFF59E0B)),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Habit Streaks',
-                      style: theme.textTheme.titleMedium,
+                    const Icon(
+                      Icons.local_fire_department,
+                      color: Color(0xFFF59E0B),
                     ),
+                    const SizedBox(width: 8),
+                    Text('Habit Streaks', style: theme.textTheme.titleMedium),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -305,7 +299,7 @@ class _HabitStreaksCard extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }
@@ -324,12 +318,7 @@ class _HabitStreakRow extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          Expanded(
-            child: Text(
-              habit.name,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
+          Expanded(child: Text(habit.name, style: theme.textTheme.bodyMedium)),
           streakAsync.when(
             data: (streak) => Row(
               children: [
@@ -352,7 +341,7 @@ class _HabitStreakRow extends ConsumerWidget {
               ],
             ),
             loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
           ),
         ],
       ),
@@ -375,10 +364,7 @@ class _WeeklyTrendChart extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Weekly Activity',
-              style: theme.textTheme.titleMedium,
-            ),
+            Text('Weekly Activity', style: theme.textTheme.titleMedium),
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
@@ -447,7 +433,6 @@ class _ActivityHeatmap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final now = DateTime.now();
 
     // Generate placeholder data for heatmap (past 12 weeks)
     return Card(
@@ -456,10 +441,7 @@ class _ActivityHeatmap extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Activity Heatmap',
-              style: theme.textTheme.titleMedium,
-            ),
+            Text('Activity Heatmap', style: theme.textTheme.titleMedium),
             const SizedBox(height: 16),
             SizedBox(
               height: 100,
@@ -489,10 +471,7 @@ class _ActivityHeatmap extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                  'Less',
-                  style: theme.textTheme.labelSmall,
-                ),
+                Text('Less', style: theme.textTheme.labelSmall),
                 const SizedBox(width: 4),
                 ...List.generate(5, (i) {
                   return Container(
@@ -508,10 +487,7 @@ class _ActivityHeatmap extends StatelessWidget {
                   );
                 }),
                 const SizedBox(width: 4),
-                Text(
-                  'More',
-                  style: theme.textTheme.labelSmall,
-                ),
+                Text('More', style: theme.textTheme.labelSmall),
               ],
             ),
           ],

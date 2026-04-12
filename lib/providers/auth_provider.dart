@@ -4,16 +4,8 @@ import '../data/repositories/repositories.dart';
 import '../domain/models/models.dart';
 import 'user_provider.dart';
 
-import '../data/repositories/mock_auth_repository.dart';
-
-/// Set to true to bypass authentication using a mock user
-const bool useMockAuth = true;
-
 /// Provider for AuthRepository
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  if (useMockAuth) {
-    return MockAuthRepository();
-  }
   return AuthRepository();
 });
 

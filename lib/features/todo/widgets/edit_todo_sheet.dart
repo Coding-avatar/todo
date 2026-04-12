@@ -81,7 +81,7 @@ class _EditTodoSheetState extends ConsumerState<EditTodoSheet> {
             ? null
             : _descriptionController.text.trim(),
         categoryId: _selectedCategory.id,
-        color: _selectedCategory.color.value,
+        color: _selectedCategory.color.toARGB32(),
         priority: _priority,
         dueDate: _dueDate,
         reminderAt: reminderAt,

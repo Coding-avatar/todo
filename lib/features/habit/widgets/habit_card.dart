@@ -49,7 +49,9 @@ class HabitCard extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: isCompletedToday
                         ? theme.colorScheme.primary
-                        : theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        : theme.colorScheme.primaryContainer.withValues(
+                            alpha: 0.3,
+                          ),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -99,7 +101,7 @@ class HabitCard extends ConsumerWidget {
               streakAsync.when(
                 data: (streak) => _buildStreakBadge(context, streak),
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
               ),
             ],
           ),
@@ -115,8 +117,8 @@ class HabitCard extends ConsumerWidget {
     final color = streak >= 7
         ? theme.colorScheme.primary
         : streak >= 3
-            ? theme.colorScheme.secondary
-            : theme.colorScheme.tertiary;
+        ? theme.colorScheme.secondary
+        : theme.colorScheme.tertiary;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -127,11 +129,7 @@ class HabitCard extends ConsumerWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.local_fire_department,
-            size: 18,
-            color: color,
-          ),
+          Icon(Icons.local_fire_department, size: 18, color: color),
           const SizedBox(width: 4),
           Text(
             '$streak',
@@ -146,10 +144,9 @@ class HabitCard extends ConsumerWidget {
   }
 
   void _toggleCompletion(WidgetRef ref) {
-    ref.read(habitNotifierProvider.notifier).toggleCompletion(
-          habit.id,
-          DateTime.now(),
-        );
+    ref
+        .read(habitNotifierProvider.notifier)
+        .toggleCompletion(habit.id, DateTime.now());
   }
 
   void _showEditSheet(BuildContext context) {

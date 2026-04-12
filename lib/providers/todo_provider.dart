@@ -5,15 +5,10 @@ import '../domain/models/models.dart';
 import '../core/enums/enums.dart';
 import 'auth_provider.dart';
 
-import '../data/repositories/mock_todo_repository.dart';
-
 const _uuid = Uuid();
 
 /// Provider for TodoRepository
 final todoRepositoryProvider = Provider<TodoRepository>((ref) {
-  if (useMockAuth) {
-    return MockTodoRepository();
-  }
   return TodoRepository();
 });
 
@@ -62,7 +57,7 @@ final todosByPriorityProvider = Provider<Map<int, List<TodoModel>>>((ref) {
       return grouped;
     },
     loading: () => {1: [], 2: [], 3: [], 4: []},
-    error: (_, __) => {1: [], 2: [], 3: [], 4: []},
+    error: (_, _) => {1: [], 2: [], 3: [], 4: []},
   );
 });
 
@@ -78,7 +73,7 @@ final todosByCategoryProvider = Provider<Map<String, List<TodoModel>>>((ref) {
       return grouped;
     },
     loading: () => {},
-    error: (_, __) => {},
+    error: (_, _) => {},
   );
 });
 

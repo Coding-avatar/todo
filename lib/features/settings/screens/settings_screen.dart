@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../providers/providers.dart';
 import '../../../core/enums/enums.dart';
-import '../../../core/router/route_names.dart';
 
 /// Settings screen with options based on user level.
 class SettingsScreen extends ConsumerWidget {
@@ -17,9 +15,7 @@ class SettingsScreen extends ConsumerWidget {
     final userLevel = ref.watch(userLevelProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -81,9 +77,7 @@ class SettingsScreen extends ConsumerWidget {
           // Experience Level
           _SettingsSection(
             title: 'Experience Level',
-            children: [
-              _LevelSelector(currentLevel: userLevel),
-            ],
+            children: [_LevelSelector(currentLevel: userLevel)],
           ),
           const SizedBox(height: 16),
 
@@ -146,9 +140,9 @@ class SettingsScreen extends ConsumerWidget {
                 subtitle: 'Download your data as JSON',
                 onTap: () {
                   // TODO: Export data
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Coming soon!')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Coming soon!')));
                 },
               ),
               _SettingsTile(
@@ -205,10 +199,7 @@ class SettingsScreen extends ConsumerWidget {
 
           // App version
           Center(
-            child: Text(
-              'Version 1.0.0',
-              style: theme.textTheme.bodySmall,
-            ),
+            child: Text('Version 1.0.0', style: theme.textTheme.bodySmall),
           ),
           const SizedBox(height: 8),
         ],
@@ -221,28 +212,26 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Theme'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<String>(
-              title: const Text('System'),
-              value: 'system',
-              groupValue: 'system',
-              onChanged: (value) => Navigator.pop(context),
-            ),
-            RadioListTile<String>(
-              title: const Text('Light'),
-              value: 'light',
-              groupValue: 'system',
-              onChanged: (value) => Navigator.pop(context),
-            ),
-            RadioListTile<String>(
-              title: const Text('Dark'),
-              value: 'dark',
-              groupValue: 'system',
-              onChanged: (value) => Navigator.pop(context),
-            ),
-          ],
+        content: RadioGroup<String>(
+          groupValue: 'system',
+          onChanged: (value) => Navigator.pop(context),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              RadioListTile<String>(
+                title: Text('System'),
+                value: 'system',
+              ),
+              RadioListTile<String>(
+                title: Text('Light'),
+                value: 'light',
+              ),
+              RadioListTile<String>(
+                title: Text('Dark'),
+                value: 'dark',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -279,10 +268,7 @@ class _SettingsSection extends StatelessWidget {
   final String title;
   final List<Widget> children;
 
-  const _SettingsSection({
-    required this.title,
-    required this.children,
-  });
+  const _SettingsSection({required this.title, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -329,10 +315,14 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListTile(
-      leading: Icon(icon, color: textColor ?? theme.colorScheme.onSurfaceVariant),
+      leading: Icon(
+        icon,
+        color: textColor ?? theme.colorScheme.onSurfaceVariant,
+      ),
       title: Text(title, style: TextStyle(color: textColor)),
       subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: trailing ?? (onTap != null ? const Icon(Icons.chevron_right) : null),
+      trailing:
+          trailing ?? (onTap != null ? const Icon(Icons.chevron_right) : null),
       onTap: onTap,
     );
   }
@@ -362,7 +352,9 @@ class _LevelSelector extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
               child: InkWell(
                 onTap: () async {
-                  await ref.read(userNotifierProvider.notifier).updateLevel(level);
+                  await ref
+                      .read(userNotifierProvider.notifier)
+                      .updateLevel(level);
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
@@ -377,7 +369,10 @@ class _LevelSelector extends ConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      Text(level.iconName, style: const TextStyle(fontSize: 24)),
+                      Text(
+                        level.iconName,
+                        style: const TextStyle(fontSize: 24),
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(

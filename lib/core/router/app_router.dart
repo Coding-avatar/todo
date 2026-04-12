@@ -32,7 +32,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final isLoggedIn = authState.value != null;
       final isLoading = authState.isLoading;
-      final hasError = authState.hasError;
       final user = userProfile.value;
       final onboardingComplete = user?.onboardingComplete ?? false;
 
@@ -187,8 +186,8 @@ String _getHomeRoute(UserLevel level) {
 /// Refresh notifier for GoRouter to react to auth state changes
 class RouterRefreshNotifier extends ChangeNotifier {
   RouterRefreshNotifier(this._ref) {
-    _ref.listen(authStateProvider, (_, __) => notifyListeners());
-    _ref.listen(userProfileProvider, (_, __) => notifyListeners());
+    _ref.listen(authStateProvider, (_, _) => notifyListeners());
+    _ref.listen(userProfileProvider, (_, _) => notifyListeners());
   }
 
   final Ref _ref;
