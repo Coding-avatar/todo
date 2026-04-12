@@ -17,6 +17,11 @@ class TodoModel extends Equatable {
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
+  
+  // Sync metadata
+  final int version; // Version counter for conflict resolution
+  final String syncStatus; // pending | synced | conflict
+  final String? deviceId; // Device that made the change
 
   const TodoModel({
     required this.id,
@@ -32,6 +37,9 @@ class TodoModel extends Equatable {
     this.notes,
     required this.createdAt,
     required this.updatedAt,
+    this.version = 0,
+    this.syncStatus = 'synced',
+    this.deviceId,
   });
 
   /// Whether the todo is due today
@@ -67,6 +75,35 @@ class TodoModel extends Equatable {
     }
   }
 
+  /// Helper method to update sync metadata
+  TodoModel copyWithSync({
+    String? syncStatus,
+    String? deviceId,
+    String? title,
+    String? description,
+    int? priority,
+    TodoStatus? status,
+    DateTime? dueDate,
+    DateTime? reminderAt,
+    RepeatRule? repeatRule,
+    String? notes,
+  }) {
+    return copyWith(
+      title: title,
+      description: description,
+      priority: priority,
+      status: status,
+      dueDate: dueDate,
+      reminderAt: reminderAt,
+      repeatRule: repeatRule,
+      notes: notes,
+      version: version + 1,
+      syncStatus: syncStatus ?? 'pending',
+      deviceId: deviceId ?? this.deviceId,
+      updatedAt: DateTime.now(),
+    );
+  }
+
   TodoModel copyWith({
     String? id,
     String? title,
@@ -81,6 +118,9 @@ class TodoModel extends Equatable {
     String? notes,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? version,
+    String? syncStatus,
+    String? deviceId,
   }) {
     return TodoModel(
       id: id ?? this.id,
@@ -96,6 +136,9 @@ class TodoModel extends Equatable {
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      version: version ?? this.version,
+      syncStatus: syncStatus ?? this.syncStatus,
+      deviceId: deviceId ?? this.deviceId,
     );
   }
 
@@ -114,6 +157,9 @@ class TodoModel extends Equatable {
       'notes': notes,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
+      'version': version,
+      'syncStatus': syncStatus,
+      'deviceId': deviceId,
     };
   }
 
@@ -136,6 +182,9 @@ class TodoModel extends Equatable {
       notes: json['notes'] as String?,
       createdAt: (json['createdAt'] as Timestamp).toDate(),
       updatedAt: (json['updatedAt'] as Timestamp).toDate(),
+      version: json['version'] as int? ?? 0,
+      syncStatus: json['syncStatus'] as String? ?? 'synced',
+      deviceId: json['deviceId'] as String?,
     );
   }
 
@@ -154,5 +203,8 @@ class TodoModel extends Equatable {
         notes,
         createdAt,
         updatedAt,
+        version,
+        syncStatus,
+        deviceId,
       ];
 }

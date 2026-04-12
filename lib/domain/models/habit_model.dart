@@ -12,6 +12,11 @@ class HabitModel extends Equatable {
   final bool isFuture; // For wishlist/future habits
   final DateTime createdAt;
   final DateTime updatedAt;
+  
+  // Sync metadata
+  final int version; // Version counter for conflict resolution
+  final String syncStatus; // pending | synced | conflict
+  final String? deviceId; // Device that made the change
 
   const HabitModel({
     required this.id,
@@ -23,6 +28,9 @@ class HabitModel extends Equatable {
     this.isFuture = false,
     required this.createdAt,
     required this.updatedAt,
+    this.version = 0,
+    this.syncStatus = 'synced',
+    this.deviceId,
   });
 
   HabitModel copyWith({
@@ -35,6 +43,9 @@ class HabitModel extends Equatable {
     bool? isFuture,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? version,
+    String? syncStatus,
+    String? deviceId,
   }) {
     return HabitModel(
       id: id ?? this.id,
@@ -46,6 +57,30 @@ class HabitModel extends Equatable {
       isFuture: isFuture ?? this.isFuture,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      version: version ?? this.version,
+      syncStatus: syncStatus ?? this.syncStatus,
+      deviceId: deviceId ?? this.deviceId,
+    );
+  }
+
+  /// Helper method to update sync metadata
+  HabitModel copyWithSync({
+    String? syncStatus,
+    String? deviceId,
+    String? name,
+    String? description,
+    bool? active,
+    bool? isFuture,
+  }) {
+    return copyWith(
+      name: name,
+      description: description,
+      active: active,
+      isFuture: isFuture,
+      version: version + 1,
+      syncStatus: syncStatus ?? 'pending',
+      deviceId: deviceId ?? this.deviceId,
+      updatedAt: DateTime.now(),
     );
   }
 
@@ -60,6 +95,9 @@ class HabitModel extends Equatable {
       'isFuture': isFuture,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
+      'version': version,
+      'syncStatus': syncStatus,
+      'deviceId': deviceId,
     };
   }
 
@@ -74,6 +112,9 @@ class HabitModel extends Equatable {
       isFuture: json['isFuture'] as bool? ?? false,
       createdAt: (json['createdAt'] as Timestamp).toDate(),
       updatedAt: (json['updatedAt'] as Timestamp).toDate(),
+      version: json['version'] as int? ?? 0,
+      syncStatus: json['syncStatus'] as String? ?? 'synced',
+      deviceId: json['deviceId'] as String?,
     );
   }
 
@@ -88,5 +129,8 @@ class HabitModel extends Equatable {
         isFuture,
         createdAt,
         updatedAt,
+        version,
+        syncStatus,
+        deviceId,
       ];
 }
