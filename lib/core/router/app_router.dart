@@ -7,6 +7,7 @@ import '../../features/auth/screens/splash_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/signup_screen.dart';
 import '../../features/auth/screens/forgot_password_screen.dart';
+import '../../features/auth/screens/phone_auth_screen.dart';
 import '../../features/onboarding/screens/onboarding_screen.dart';
 import '../../features/onboarding/screens/level_selection_screen.dart';
 import '../../features/todo/screens/today_screen.dart';
@@ -39,7 +40,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       
       final isAuthRoute = currentPath == RoutePaths.login ||
           currentPath == RoutePaths.signup ||
-          currentPath == RoutePaths.forgotPassword;
+          currentPath == RoutePaths.forgotPassword ||
+          currentPath == RoutePaths.phoneAuth;
       final isOnboardingRoute = currentPath == RoutePaths.onboarding ||
           currentPath == RoutePaths.levelSelection;
       final isSplash = currentPath == RoutePaths.splash;
@@ -95,6 +97,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.forgotPassword,
         name: RouteNames.forgotPassword,
         builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.phoneAuth,
+        name: RouteNames.phoneAuth,
+        builder: (context, state) => const PhoneAuthScreen(),
       ),
 
       // Onboarding routes

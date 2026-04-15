@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../providers/providers.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../widgets/auth_text_field.dart';
+import '../widgets/social_sign_in_buttons.dart';
 
 /// Signup screen for new user registration.
 class SignupScreen extends ConsumerStatefulWidget {
@@ -225,6 +226,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   style: theme.textTheme.bodySmall,
                   textAlign: TextAlign.center,
                 ),
+
+                const SizedBox(height: 24),
+
+                // Social sign-in buttons
+                const SocialSignInButtons(),
               ],
             ),
           ),

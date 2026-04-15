@@ -5,6 +5,7 @@ import '../../../providers/providers.dart';
 import '../../../core/router/route_names.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../widgets/auth_text_field.dart';
+import '../widgets/social_sign_in_buttons.dart';
 
 /// Login screen with email/password authentication.
 class LoginScreen extends ConsumerStatefulWidget {
@@ -196,6 +197,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 16),
+
+                // Social sign-in buttons
+                const SocialSignInButtons(),
               ],
             ),
           ),

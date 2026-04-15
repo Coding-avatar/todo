@@ -7,6 +7,7 @@ class RouteNames {
   static const login = 'login';
   static const signup = 'signup';
   static const forgotPassword = 'forgot-password';
+  static const phoneAuth = 'phone-auth';
 
   // Onboarding routes
   static const onboarding = 'onboarding';
@@ -35,6 +36,7 @@ class RoutePaths {
   static const login = '/login';
   static const signup = '/signup';
   static const forgotPassword = '/forgot-password';
+  static const phoneAuth = '/phone-auth';
 
   static const onboarding = '/onboarding';
   static const levelSelection = '/level-selection';
