@@ -224,6 +224,9 @@ class _EditTodoSheetState extends ConsumerState<EditTodoSheet> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please enter a title';
                   }
+                  if (value.trim().split(RegExp(r'\s+')).length > 15) {
+                    return 'Title cannot exceed 15 words';
+                  }
                   return null;
                 },
               ),

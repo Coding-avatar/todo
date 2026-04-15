@@ -116,6 +116,9 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please enter a habit name';
                   }
+                  if (value.trim().split(RegExp(r'\s+')).length > 15) {
+                    return 'Habit name cannot exceed 15 words';
+                  }
                   return null;
                 },
               ),

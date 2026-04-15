@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../../providers/providers.dart';
 import '../../../domain/models/models.dart';
 import '../widgets/todo_card.dart';
-import '../widgets/add_todo_sheet.dart';
 
 /// Today screen for beginner mode - simplified todo view.
 class TodayScreen extends ConsumerWidget {
