@@ -33,22 +33,13 @@ void main() async {
 
 /// Initialize Hive for local storage
 Future<void> _initHive() async {
-  // Get application documents directory
   final appDir = await getApplicationDocumentsDirectory();
-  
-  // Initialize Hive with app directory
   await Hive.initFlutter(appDir.path);
   
-  // Register Hive adapters
+  // Register adapters
   Hive.registerAdapter(TodoModelAdapter());
   Hive.registerAdapter(HabitModelAdapter());
   Hive.registerAdapter(HabitLogModelAdapter());
-  
-  // Open Hive boxes
-  await Hive.openBox<dynamic>('todos');
-  await Hive.openBox<dynamic>('habits');
-  await Hive.openBox<dynamic>('habitLogs');
-  await Hive.openBox<String>('syncMetadata');
   
   // Initialize LocalStorageService
   await LocalStorageService().initialize();

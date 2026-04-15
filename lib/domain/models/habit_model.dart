@@ -87,7 +87,7 @@ class HabitModel extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
+      'name': name,/// TODO: Add validation to ensure name is not empty also add max length validation to 15 words
       'description': description,
       'categoryId': categoryId,
       'startDate': Timestamp.fromDate(startDate),

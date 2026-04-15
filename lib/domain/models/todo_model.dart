@@ -62,6 +62,8 @@ class TodoModel extends Equatable {
   /// Priority label for Eisenhower matrix
   String get priorityLabel {
     switch (priority) {
+      case 0:
+        return 'Normal';
       case 1:
         return 'Urgent & Important';
       case 2:

@@ -16,10 +16,21 @@ class LocalStorageService {
 
   /// Initialize Hive boxes
   Future<void> initialize() async {
-    _todosBox = Hive.box<TodoModel>('todos');
-    _habitsBox = Hive.box<HabitModel>('habits');
-    _habitLogsBox = Hive.box<HabitLogModel>('habitLogs');
-    _syncMetadataBox = Hive.box<String>('syncMetadata');
+    // We use openBox here instead of Hive.box because 
+    // the service needs to ensure they are ready.
+    
+    _todosBox = await _openSafeBox<TodoModel>('todos');
+    _habitsBox = await _openSafeBox<HabitModel>('habits');
+    _habitLogsBox = await _openSafeBox<HabitLogModel>('habitLogs');
+    _syncMetadataBox = await _openSafeBox<String>('syncMetadata');
+  }
+
+  /// Helper to open boxes safely without "Already Open" errors
+  Future<Box<T>> _openSafeBox<T>(String name) async {
+    if (Hive.isBoxOpen(name)) {
+      return Hive.box<T>(name);
+    }
+    return await Hive.openBox<T>(name);
   }
 
   // ============= TODOS =============
