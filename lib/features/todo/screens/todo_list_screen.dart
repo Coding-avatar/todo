@@ -183,7 +183,7 @@ class _AllTodosTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final byCategoryAsync = ref.watch(todosByCategoryProvider);
-    final categories = Category.defaults;
+    final categories = ref.watch(userCategoriesProvider);
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),

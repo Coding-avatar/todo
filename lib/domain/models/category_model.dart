@@ -18,34 +18,40 @@ class Category extends Equatable {
   /// Default categories as specified in requirements
   static List<Category> get defaults => [
         const Category(
+          id: 'none',
+          name: 'None',
+          color: Color(0xFF9E9E9E), // Grey
+          order: 0,
+        ),
+        const Category(
           id: 'personal',
           name: 'Personal / Household',
           color: Color(0xFF6366F1), // Indigo
-          order: 0,
+          order: 1,
         ),
         const Category(
           id: 'work',
           name: 'Office / Career / Learning',
           color: Color(0xFF3B82F6), // Blue
-          order: 1,
+          order: 2,
         ),
         const Category(
           id: 'family',
           name: 'Family / Friends',
           color: Color(0xFF22C55E), // Green
-          order: 2,
+          order: 3,
         ),
         const Category(
           id: 'social',
           name: 'Social / Optional',
           color: Color(0xFFF59E0B), // Amber
-          order: 3,
+          order: 4,
         ),
         const Category(
           id: 'selfcare',
           name: 'Self-Care / Emotional',
           color: Color(0xFFEC4899), // Pink
-          order: 4,
+          order: 5,
         ),
       ];
 

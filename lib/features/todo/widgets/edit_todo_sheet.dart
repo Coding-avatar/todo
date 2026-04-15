@@ -36,9 +36,10 @@ class _EditTodoSheetState extends ConsumerState<EditTodoSheet> {
         TextEditingController(text: widget.todo.description ?? '');
     _notesController = TextEditingController(text: widget.todo.notes ?? '');
 
-    _selectedCategory = Category.defaults.firstWhere(
+    final categories = ref.read(userCategoriesProvider);
+    _selectedCategory = categories.firstWhere(
       (c) => c.id == widget.todo.categoryId,
-      orElse: () => Category.defaults.first,
+      orElse: () => categories.first,
     );
     _priority = widget.todo.priority;
     _dueDate = widget.todo.dueDate;
@@ -64,6 +65,8 @@ class _EditTodoSheetState extends ConsumerState<EditTodoSheet> {
     });
 
     try {
+      final userLevel = ref.read(userLevelProvider);
+
       DateTime? reminderAt;
       if (_dueDate != null && _reminderTime != null) {
         reminderAt = DateTime(
@@ -75,20 +78,54 @@ class _EditTodoSheetState extends ConsumerState<EditTodoSheet> {
         );
       }
 
+      // Apply defaults/preserve values based on user level
+      final description = userLevel == UserLevel.expert
+          ? (_descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim())
+          : widget.todo.description; // Preserve existing value if hidden
+      
+      final categoryId = userLevel.index >= UserLevel.intermediate.index
+          ? _selectedCategory.id
+          : widget.todo.categoryId; // Preserve existing value if hidden
+      
+      final color = userLevel.index >= UserLevel.intermediate.index
+          ? _selectedCategory.color.toARGB32()
+          : widget.todo.color; // Preserve existing value if hidden
+      
+      final priority = userLevel.index >= UserLevel.intermediate.index
+          ? _priority
+          : widget.todo.priority; // Preserve existing value if hidden
+      
+      final dueDate = userLevel.index >= UserLevel.intermediate.index
+          ? _dueDate
+          : widget.todo.dueDate; // Preserve existing value if hidden
+      
+      final reminderAtValue = userLevel.index >= UserLevel.intermediate.index
+          ? reminderAt
+          : widget.todo.reminderAt; // Preserve existing value if hidden
+      
+      final repeatRule = userLevel.index >= UserLevel.intermediate.index
+          ? _repeatRule
+          : widget.todo.repeatRule; // Preserve existing value if hidden
+      
+      final notes = userLevel == UserLevel.expert
+          ? (_notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim())
+          : widget.todo.notes; // Preserve existing value if hidden
+
       final updated = widget.todo.copyWith(
         title: _titleController.text.trim(),
-        description: _descriptionController.text.trim().isEmpty
-            ? null
-            : _descriptionController.text.trim(),
-        categoryId: _selectedCategory.id,
-        color: _selectedCategory.color.toARGB32(),
-        priority: _priority,
-        dueDate: _dueDate,
-        reminderAt: reminderAt,
-        repeatRule: _repeatRule,
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
+        description: description,
+        categoryId: categoryId,
+        color: color,
+        status: TodoStatus.pending,
+        priority: priority,
+        dueDate: dueDate,
+        reminderAt: reminderAtValue,
+        repeatRule: repeatRule,
+        notes: notes,
       );
 
       await ref.read(todoNotifierProvider.notifier).updateTodo(updated);
@@ -144,6 +181,7 @@ class _EditTodoSheetState extends ConsumerState<EditTodoSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final userLevel = ref.watch(userLevelProvider);
 
     return Container(
       padding: EdgeInsets.only(
@@ -191,111 +229,121 @@ class _EditTodoSheetState extends ConsumerState<EditTodoSheet> {
               ),
               const SizedBox(height: 16),
 
-              // Description
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (optional)',
-                  hintText: 'Add more details...',
+              // Description (Expert only)
+              if (userLevel == UserLevel.expert) ...
+              [
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description (optional)',
+                    hintText: 'Add more details...',
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: 2,
                 ),
-                textCapitalization: TextCapitalization.sentences,
-                maxLines: 2,
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
+              ],
 
-              // Category
-              Text(
-                'Category',
-                style: theme.textTheme.labelLarge,
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: Category.defaults.map((category) {
-                  final isSelected = _selectedCategory.id == category.id;
-                  return FilterChip(
-                    selected: isSelected,
-                    label: Text(category.name),
-                    avatar: CircleAvatar(
-                      backgroundColor: category.color,
-                      radius: 8,
+              // Category (Intermediate+)
+              if (userLevel.index >= UserLevel.intermediate.index) ...
+              [
+                Text(
+                  'Category',
+                  style: theme.textTheme.labelLarge,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: ref.watch(userCategoriesProvider).map((category) {
+                    final isSelected = _selectedCategory.id == category.id;
+                    return FilterChip(
+                      selected: isSelected,
+                      label: Text(category.name),
+                      avatar: CircleAvatar(
+                        backgroundColor: category.color,
+                        radius: 8,
+                      ),
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedCategory = category;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Priority (Intermediate+)
+              if (userLevel.index >= UserLevel.intermediate.index) ...
+              [
+                Text(
+                  'Priority',
+                  style: theme.textTheme.labelLarge,
+                ),
+                const SizedBox(height: 8),
+                SegmentedButton<int>(
+                  segments: const [
+                    ButtonSegment(
+                      value: 1,
+                      label: Text('Urgent'),
+                      icon: Icon(Icons.priority_high, size: 18),
                     ),
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedCategory = category;
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 16),
-
-              // Priority
-              Text(
-                'Priority',
-                style: theme.textTheme.labelLarge,
-              ),
-              const SizedBox(height: 8),
-              SegmentedButton<int>(
-                segments: const [
-                  ButtonSegment(
-                    value: 1,
-                    label: Text('Urgent'),
-                    icon: Icon(Icons.priority_high, size: 18),
-                  ),
-                  ButtonSegment(
-                    value: 2,
-                    label: Text('High'),
-                  ),
-                  ButtonSegment(
-                    value: 3,
-                    label: Text('Medium'),
-                  ),
-                  ButtonSegment(
-                    value: 4,
-                    label: Text('Low'),
-                  ),
-                ],
-                selected: {_priority},
-                onSelectionChanged: (set) {
-                  setState(() {
-                    _priority = set.first;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Due date
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(
-                  Icons.calendar_today,
-                  color: _dueDate != null
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurfaceVariant,
+                    ButtonSegment(
+                      value: 2,
+                      label: Text('High'),
+                    ),
+                    ButtonSegment(
+                      value: 3,
+                      label: Text('Medium'),
+                    ),
+                    ButtonSegment(
+                      value: 4,
+                      label: Text('Low'),
+                    ),
+                  ],
+                  selected: {_priority},
+                  onSelectionChanged: (set) {
+                    setState(() {
+                      _priority = set.first;
+                    });
+                  },
                 ),
-                title: Text(
-                  _dueDate != null
-                      ? DateFormat('EEE, MMM d, y').format(_dueDate!)
-                      : 'Set due date',
-                ),
-                trailing: _dueDate != null
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          setState(() {
-                            _dueDate = null;
-                            _reminderTime = null;
-                          });
-                        },
-                      )
-                    : null,
-                onTap: _pickDueDate,
-              ),
+                const SizedBox(height: 16),
+              ],
 
-              // Reminder
-              if (_dueDate != null)
+              // Due date (Intermediate+)
+              if (userLevel.index >= UserLevel.intermediate.index)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    Icons.calendar_today,
+                    color: _dueDate != null
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                  title: Text(
+                    _dueDate != null
+                        ? DateFormat('EEE, MMM d, y').format(_dueDate!)
+                        : 'Set due date',
+                  ),
+                  trailing: _dueDate != null
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              _dueDate = null;
+                              _reminderTime = null;
+                            });
+                          },
+                        )
+                      : null,
+                  onTap: _pickDueDate,
+                ),
+
+              // Reminder (Intermediate+)
+              if (userLevel.index >= UserLevel.intermediate.index && _dueDate != null)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(
@@ -322,29 +370,34 @@ class _EditTodoSheetState extends ConsumerState<EditTodoSheet> {
                   onTap: _pickReminderTime,
                 ),
 
-              // Repeat
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(
-                  Icons.repeat,
-                  color: _repeatRule != RepeatRule.none
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurfaceVariant,
+              // Repeat (Intermediate+)
+              if (userLevel.index >= UserLevel.intermediate.index)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    Icons.repeat,
+                    color: _repeatRule != RepeatRule.none
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                  title: Text(_repeatRule.displayName),
+                  onTap: _pickRepeatRule,
                 ),
-                title: Text(_repeatRule.displayName),
-                onTap: _pickRepeatRule,
-              ),
 
-              // Notes
-              TextFormField(
-                controller: _notesController,
-                decoration: const InputDecoration(
-                  labelText: 'Notes (optional)',
-                  hintText: 'Any additional notes...',
+              // Notes (Expert only)
+              if (userLevel == UserLevel.expert) ...
+              [
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _notesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Notes (optional)',
+                    hintText: 'Any additional notes...',
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: 3,
                 ),
-                textCapitalization: TextCapitalization.sentences,
-                maxLines: 3,
-              ),
+              ],
               const SizedBox(height: 24),
 
               // Submit button

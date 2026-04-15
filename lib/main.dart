@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router/router.dart';
 import 'services/notification_service.dart';
@@ -14,11 +15,14 @@ import 'data/local/hive_adapters/hive_habit_log_adapter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive
-  await _initHive();
-
   // Initialize Firebase
   await Firebase.initializeApp();
+
+  // Request notification permission
+  await requestNotificationPermission();
+
+  // Initialize Hive
+  await _initHive();
 
   // Initialize notifications
   await NotificationService().initialize();
@@ -29,7 +33,7 @@ void main() async {
       child: TodoApp(),
     ),
   );
-}
+}     
 
 /// Initialize Hive for local storage
 Future<void> _initHive() async {
@@ -43,6 +47,15 @@ Future<void> _initHive() async {
   
   // Initialize LocalStorageService
   await LocalStorageService().initialize();
+}
+
+Future<void> requestNotificationPermission() async {
+  PermissionStatus status = await Permission.notification.request();
+  
+  if (status.isGranted) {
+  } else if (status.isPermanentlyDenied) {
+    openAppSettings();
+  }
 }
 
 /// Main app widget.

@@ -30,13 +30,11 @@ class TodoCard extends ConsumerWidget {
         motion: const DrawerMotion(),
         children: [
           SlidableAction(
-            onPressed: (_) {
-              ref.read(todoNotifierProvider.notifier).completeTodo(todo.id);
-            },
-            backgroundColor: theme.colorScheme.primary,
+            onPressed: (_) => _confirmDelete(context, ref),
+            backgroundColor: theme.colorScheme.error,
             foregroundColor: Colors.white,
-            icon: Icons.check,
-            label: 'Complete',
+            icon: Icons.delete,
+            label: 'Delete',
             borderRadius: BorderRadius.circular(12),
           ),
         ],
@@ -54,21 +52,19 @@ class TodoCard extends ConsumerWidget {
             label: 'Dismiss',
             borderRadius: BorderRadius.circular(12),
           ),
-          SlidableAction(
-            onPressed: (_) => _confirmDelete(context, ref),
-            backgroundColor: theme.colorScheme.error,
-            foregroundColor: Colors.white,
-            icon: Icons.delete,
-            label: 'Delete',
-            borderRadius: BorderRadius.circular(12),
-          ),
         ],
       ),
       child: Material(
-        color: theme.colorScheme.surface,
+        color: isDismissed
+            ? theme.colorScheme.onSurface.withValues(alpha: 0.05)
+            : theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
-          onTap: () => _showEditSheet(context),
+          onTap: () {
+            if (todo.status == TodoStatus.pending) {
+              _showEditSheet(context);
+            }
+          },
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.all(16),

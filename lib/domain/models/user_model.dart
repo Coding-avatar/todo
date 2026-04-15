@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import '../../core/enums/enums.dart';
+import 'user_preferences_model.dart';
 
 /// User profile model stored in Firestore.
 class UserModel extends Equatable {
@@ -10,6 +11,7 @@ class UserModel extends Equatable {
   final String? photoUrl;
   final UserLevel level;
   final bool onboardingComplete;
+  final UserPreferences preferences;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -20,6 +22,7 @@ class UserModel extends Equatable {
     this.photoUrl,
     this.level = UserLevel.beginner,
     this.onboardingComplete = false,
+    this.preferences = const UserPreferences(),
     required this.createdAt,
     required this.updatedAt,
   });
@@ -31,6 +34,7 @@ class UserModel extends Equatable {
     String? photoUrl,
     UserLevel? level,
     bool? onboardingComplete,
+    UserPreferences? preferences,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -41,6 +45,7 @@ class UserModel extends Equatable {
       photoUrl: photoUrl ?? this.photoUrl,
       level: level ?? this.level,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
+      preferences: preferences ?? this.preferences,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -54,6 +59,7 @@ class UserModel extends Equatable {
       'photoUrl': photoUrl,
       'level': level.toJson(),
       'onboardingComplete': onboardingComplete,
+      'preferences': preferences.toJson(),
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
@@ -67,6 +73,9 @@ class UserModel extends Equatable {
       photoUrl: json['photoUrl'] as String?,
       level: UserLevel.fromJson(json['level'] as String?),
       onboardingComplete: json['onboardingComplete'] as bool? ?? false,
+      preferences: json['preferences'] != null
+          ? UserPreferences.fromJson(json['preferences'] as Map<String, dynamic>)
+          : const UserPreferences(),
       createdAt: (json['createdAt'] as Timestamp).toDate(),
       updatedAt: (json['updatedAt'] as Timestamp).toDate(),
     );
@@ -85,6 +94,7 @@ class UserModel extends Equatable {
       displayName: displayName,
       level: UserLevel.beginner,
       onboardingComplete: false,
+      preferences: const UserPreferences(),
       createdAt: now,
       updatedAt: now,
     );
@@ -98,6 +108,7 @@ class UserModel extends Equatable {
         photoUrl,
         level,
         onboardingComplete,
+        preferences,
         createdAt,
         updatedAt,
       ];

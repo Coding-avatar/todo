@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/providers.dart';
 import '../../../domain/models/models.dart';
+import '../../../core/enums/enums.dart';
 
 /// Bottom sheet for adding a new habit.
 class AddHabitSheet extends ConsumerStatefulWidget {
@@ -37,12 +38,23 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
     });
 
     try {
+      final userLevel = ref.read(userLevelProvider);
+
+      // Apply defaults based on user level
+      final description = userLevel == UserLevel.expert
+          ? (_descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim())
+          : null;
+
+      final categoryId = userLevel.index >= UserLevel.intermediate.index
+          ? (_selectedCategory?.id == 'none' ? null : _selectedCategory?.id)
+          : null;
+
       await ref.read(habitNotifierProvider.notifier).createHabit(
             name: _nameController.text.trim(),
-            description: _descriptionController.text.trim().isEmpty
-                ? null
-                : _descriptionController.text.trim(),
-            categoryId: _selectedCategory?.id,
+            description: description,
+            categoryId: categoryId,
             startDate: _startDate,
             isFuture: widget.isFuture,
           );
@@ -68,6 +80,9 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final userLevel = ref.watch(userLevelProvider);
+    final categories = ref.watch(userCategoriesProvider);
+    _selectedCategory ??= categories.firstWhere((c) => c.id == 'none', orElse: () => categories.first);
 
     return Container(
       padding: EdgeInsets.only(
@@ -106,55 +121,52 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
               ),
               const SizedBox(height: 16),
 
-              // Description
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (optional)',
-                  hintText: 'Why is this habit important?',
-                ),
-                textCapitalization: TextCapitalization.sentences,
-                maxLines: 2,
-              ),
-              const SizedBox(height: 16),
-
-              // Category
-              Text(
-                'Category (optional)',
-                style: theme.textTheme.labelLarge,
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  FilterChip(
-                    selected: _selectedCategory == null,
-                    label: const Text('None'),
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedCategory = null;
-                      });
-                    },
+              // Description (Expert only)
+              if (userLevel == UserLevel.expert) ...
+              [
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description (optional)',
+                    hintText: 'Why is this habit important?',
                   ),
-                  ...Category.defaults.map((category) {
-                    final isSelected = _selectedCategory?.id == category.id;
-                    return FilterChip(
-                      selected: isSelected,
-                      label: Text(category.name),
-                      avatar: CircleAvatar(
-                        backgroundColor: category.color,
-                        radius: 8,
-                      ),
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedCategory = category;
-                        });
-                      },
-                    );
-                  }),
-                ],
-              ),
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Category (Intermediate+)
+              if (userLevel.index >= UserLevel.intermediate.index) ...
+              [
+                Text(
+                  'Category (optional)',
+                  style: theme.textTheme.labelLarge,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ...categories.map((category) {
+                      final isSelected = _selectedCategory?.id == category.id;
+                      return FilterChip(
+                        selected: isSelected,
+                        label: Text(category.name),
+                        avatar: CircleAvatar(
+                          backgroundColor: category.color,
+                          radius: 8,
+                        ),
+                        onSelected: (selected) {
+                          setState(() {
+                            _selectedCategory = category;
+                          });
+                        },
+                      );
+                    }),
+                  ],
+                ),
+              ],
 
               if (widget.isFuture) ...[
                 const SizedBox(height: 16),

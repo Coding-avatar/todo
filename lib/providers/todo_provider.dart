@@ -63,7 +63,7 @@ final todosByPriorityProvider = Provider<Map<int, List<TodoModel>>>((ref) {
 
 /// Provider for todos grouped by category
 final todosByCategoryProvider = Provider<Map<String, List<TodoModel>>>((ref) {
-  final todosAsync = ref.watch(pendingTodosProvider);
+  final todosAsync = ref.watch(allTodosProvider);
   return todosAsync.when(
     data: (todos) {
       final grouped = <String, List<TodoModel>>{};

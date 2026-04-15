@@ -22,10 +22,7 @@ class TodayScreen extends ConsumerWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Today',
-              style: theme.textTheme.titleLarge,
-            ),
+            Text('Today', style: theme.textTheme.titleLarge),
             Text(
               DateFormat('EEEE, MMMM d').format(today),
               style: theme.textTheme.bodySmall,
@@ -43,14 +40,9 @@ class TodayScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddTodo(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Add Task'),
-      ),
     );
   }
- 
+
   Widget _buildContent(
     BuildContext context,
     WidgetRef ref,
@@ -79,10 +71,12 @@ class TodayScreen extends ConsumerWidget {
             theme.colorScheme.error,
           ),
           const SizedBox(height: 8),
-          ...overdueTodos.map((todo) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: TodoCard(todo: todo, showDueDate: true),
-              )),
+          ...overdueTodos.map(
+            (todo) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: TodoCard(todo: todo, showDueDate: true),
+            ),
+          ),
           const SizedBox(height: 16),
         ],
 
@@ -95,10 +89,12 @@ class TodayScreen extends ConsumerWidget {
             theme.colorScheme.primary,
           ),
           const SizedBox(height: 8),
-          ...todayTodos.map((todo) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: TodoCard(todo: todo),
-              )),
+          ...todayTodos.map(
+            (todo) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: TodoCard(todo: todo),
+            ),
+          ),
           const SizedBox(height: 16),
         ],
 
@@ -111,10 +107,14 @@ class TodayScreen extends ConsumerWidget {
             theme.colorScheme.secondary,
           ),
           const SizedBox(height: 8),
-          ...noDueDateTodos.take(5).map((todo) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: TodoCard(todo: todo),
-              )),
+          ...noDueDateTodos
+              .take(5)
+              .map(
+                (todo) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: TodoCard(todo: todo),
+                ),
+              ),
           if (noDueDateTodos.length > 5)
             TextButton(
               onPressed: () {},
@@ -136,10 +136,7 @@ class TodayScreen extends ConsumerWidget {
       children: [
         Icon(icon, size: 18, color: color),
         const SizedBox(width: 8),
-        Text(
-          title,
-          style: theme.textTheme.titleSmall?.copyWith(color: color),
-        ),
+        Text(title, style: theme.textTheme.titleSmall?.copyWith(color: color)),
       ],
     );
   }
@@ -155,7 +152,9 @@ class TodayScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
+                color: theme.colorScheme.primaryContainer.withValues(
+                  alpha: 0.5,
+                ),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -165,10 +164,7 @@ class TodayScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            Text(
-              'All caught up!',
-              style: theme.textTheme.headlineSmall,
-            ),
+            Text('All caught up!', style: theme.textTheme.headlineSmall),
             const SizedBox(height: 8),
             Text(
               'No tasks for today. Add something to get started.',
@@ -180,15 +176,6 @@ class TodayScreen extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-
-  void _showAddTodo(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => const AddTodoSheet(),
     );
   }
 }

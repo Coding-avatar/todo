@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/repositories/repositories.dart';
 import '../domain/models/models.dart';
@@ -35,6 +36,29 @@ final onboardingCompleteProvider = Provider<bool>((ref) {
     data: (user) => user?.onboardingComplete ?? false,
     loading: () => false,
     error: (_, _) => false,
+  );
+});
+
+/// Provider for the list of categories tailored to the current user's preferences
+final userCategoriesProvider = Provider<List<Category>>((ref) {
+  final userAsync = ref.watch(userProfileProvider);
+  final defaults = Category.defaults;
+
+  return userAsync.when(
+    data: (user) {
+      if (user == null) return defaults;
+      final customColors = user.preferences.categoryColors;
+      if (customColors.isEmpty) return defaults;
+
+      return defaults.map((cat) {
+        if (customColors.containsKey(cat.id)) {
+          return cat.copyWith(color: Color(customColors[cat.id]!));
+        }
+        return cat;
+      }).toList();
+    },
+    loading: () => defaults,
+    error: (_, _) => defaults,
   );
 });
 
@@ -90,6 +114,20 @@ class UserNotifier extends AsyncNotifier<void> {
       if (photoUrl != null) fields['photoUrl'] = photoUrl;
 
       await ref.read(userRepositoryProvider).updateUserFields(userId, fields);
+      state = const AsyncData(null);
+    } catch (e) {
+      state = AsyncError(e, StackTrace.current);
+      rethrow;
+    }
+  }
+
+  Future<void> updatePreferences(UserPreferences preferences) async {
+    final userId = ref.read(currentUserIdProvider);
+    if (userId == null) return;
+
+    state = const AsyncLoading();
+    try {
+      await ref.read(userRepositoryProvider).updateUserPreferences(userId, preferences);
       state = const AsyncData(null);
     } catch (e) {
       state = AsyncError(e, StackTrace.current);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/providers.dart';
 import '../../../domain/models/models.dart';
+import '../../../core/enums/enums.dart';
 
 /// Bottom sheet for editing an existing habit.
 class EditHabitSheet extends ConsumerStatefulWidget {
@@ -28,12 +29,11 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
     _descriptionController = TextEditingController(
       text: widget.habit.description ?? '',
     );
-    _selectedCategory = widget.habit.categoryId != null
-        ? Category.defaults.firstWhere(
-            (c) => c.id == widget.habit.categoryId,
-            orElse: () => Category.defaults.first,
-          )
-        : null;
+    final categories = ref.read(userCategoriesProvider);
+    _selectedCategory = categories.firstWhere(
+      (c) => c.id == widget.habit.categoryId || (widget.habit.categoryId == null && c.id == 'none'),
+      orElse: () => categories.firstWhere((c) => c.id == 'none'),
+    );
   }
 
   @override
@@ -51,12 +51,23 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
     });
 
     try {
+      final userLevel = ref.read(userLevelProvider);
+
+      // Apply defaults/preserve values based on user level
+      final description = userLevel == UserLevel.expert
+          ? (_descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim())
+          : widget.habit.description; // Preserve existing value if hidden
+
+      final categoryId = userLevel.index >= UserLevel.intermediate.index
+          ? (_selectedCategory?.id == 'none' ? null : _selectedCategory?.id)
+          : widget.habit.categoryId; // Preserve existing value if hidden
+
       final updated = widget.habit.copyWith(
         name: _nameController.text.trim(),
-        description: _descriptionController.text.trim().isEmpty
-            ? null
-            : _descriptionController.text.trim(),
-        categoryId: _selectedCategory?.id,
+        description: description,
+        categoryId: categoryId,
       );
 
       await ref.read(habitNotifierProvider.notifier).updateHabit(updated);
@@ -128,6 +139,8 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final userLevel = ref.watch(userLevelProvider);
+    final categories = ref.watch(userCategoriesProvider);
     final streakAsync = ref.watch(habitStreakProvider(widget.habit.id));
 
     return Container(
@@ -210,53 +223,52 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
               ),
               const SizedBox(height: 16),
 
-              // Description
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (optional)',
-                  hintText: 'Why is this habit important?',
-                ),
-                textCapitalization: TextCapitalization.sentences,
-                maxLines: 2,
-              ),
-              const SizedBox(height: 16),
-
-              // Category
-              Text('Category (optional)', style: theme.textTheme.labelLarge),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  FilterChip(
-                    selected: _selectedCategory == null,
-                    label: const Text('None'),
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedCategory = null;
-                      });
-                    },
+              // Description (Expert only)
+              if (userLevel == UserLevel.expert) ...
+              [
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description (optional)',
+                    hintText: 'Why is this habit important?',
                   ),
-                  ...Category.defaults.map((category) {
-                    final isSelected = _selectedCategory?.id == category.id;
-                    return FilterChip(
-                      selected: isSelected,
-                      label: Text(category.name),
-                      avatar: CircleAvatar(
-                        backgroundColor: category.color,
-                        radius: 8,
-                      ),
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedCategory = category;
-                        });
-                      },
-                    );
-                  }),
-                ],
-              ),
-              const SizedBox(height: 24),
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Category (Intermediate+)
+              if (userLevel.index >= UserLevel.intermediate.index) ...
+              [
+                Text('Category (optional)', style: theme.textTheme.labelLarge),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ...categories.map((category) {
+                      final isSelected = _selectedCategory?.id == category.id;
+                      return FilterChip(
+                        selected: isSelected,
+                        label: Text(category.name),
+                        avatar: CircleAvatar(
+                          backgroundColor: category.color,
+                          radius: 8,
+                        ),
+                        onSelected: (selected) {
+                          setState(() {
+                            _selectedCategory = category;
+                          });
+                        },
+                      );
+                    }),
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ]
+              else
+                const SizedBox(height: 24),
 
               // Submit button
               ElevatedButton(

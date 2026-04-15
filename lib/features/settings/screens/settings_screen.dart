@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/providers.dart';
 import '../../../core/enums/enums.dart';
+import '../widgets/category_colors_dialog.dart';
 
 /// Settings screen with options based on user level.
 class SettingsScreen extends ConsumerWidget {
@@ -96,7 +97,10 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'Category Colors',
                 subtitle: 'Customize category colors',
                 onTap: () {
-                  // TODO: Navigate to color customization
+                  showDialog(
+                    context: context,
+                    builder: (context) => const CategoryColorsDialog(),
+                  );
                 },
               ),
             ],

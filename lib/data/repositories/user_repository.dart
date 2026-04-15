@@ -29,6 +29,7 @@ class UserRepository {
         updatedAt: DateTime.now(),
         level: UserLevel.intermediate, // Default to intermediate for testing features
         onboardingComplete: true,
+        preferences: const UserPreferences(),
       );
     }
 
@@ -51,6 +52,7 @@ class UserRepository {
         updatedAt: DateTime.now(),
         level: UserLevel.intermediate,
         onboardingComplete: true,
+        preferences: const UserPreferences(),
       ));
     }
 
@@ -89,6 +91,11 @@ class UserRepository {
   /// Mark onboarding as complete
   Future<void> completeOnboarding(String userId) async {
     await updateUserFields(userId, {'onboardingComplete': true});
+  }
+
+  /// Update user preferences
+  Future<void> updateUserPreferences(String userId, UserPreferences preferences) async {
+    await updateUserFields(userId, {'preferences': preferences.toJson()});
   }
 
   /// Delete user profile
