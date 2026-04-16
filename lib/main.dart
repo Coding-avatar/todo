@@ -12,11 +12,15 @@ import 'data/local/hive_adapters/hive_todo_adapter.dart';
 import 'data/local/hive_adapters/hive_habit_adapter.dart';
 import 'data/local/hive_adapters/hive_habit_log_adapter.dart';
 
+import 'firebase_options.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // Request notification permission
   await requestNotificationPermission();

@@ -11,11 +11,11 @@ dependencies:
     sdk: flutter
 
   # Firebase
-  firebase_core: ^3.8.1
-  firebase_auth: ^5.3.4
-  cloud_firestore: ^5.6.0
-  firebase_messaging: ^15.1.6 
-  firebase_analytics: ^11.3.6
+  firebase_core: ^4.7.0
+  firebase_auth: ^6.4.0
+  cloud_firestore: ^6.3.0
+  firebase_messaging: ^16.2.0
+  firebase_analytics: ^12.3.0
 
   # State Management
   flutter_riverpod: ^2.6.1
