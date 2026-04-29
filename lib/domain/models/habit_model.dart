@@ -18,7 +18,7 @@ class HabitModel extends Equatable {
   final String syncStatus; // pending | synced | conflict
   final String? deviceId; // Device that made the change
 
-  const HabitModel({
+  HabitModel({
     required this.id,
     required this.name,
     this.description,
@@ -31,7 +31,14 @@ class HabitModel extends Equatable {
     this.version = 0,
     this.syncStatus = 'synced',
     this.deviceId,
-  });
+  }) {
+    if (name.trim().isEmpty) {
+      throw ArgumentError('Habit name cannot be empty');
+    }
+    if (name.trim().split(RegExp(r'\s+')).length > 15) {
+      throw ArgumentError('Habit name cannot exceed 15 words');
+    }
+  }
 
   HabitModel copyWith({
     String? id,
@@ -87,7 +94,7 @@ class HabitModel extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,/// TODO: Add validation to ensure name is not empty also add max length validation to 15 words
+      'name': name,
       'description': description,
       'categoryId': categoryId,
       'startDate': Timestamp.fromDate(startDate),

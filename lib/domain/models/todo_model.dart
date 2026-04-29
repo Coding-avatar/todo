@@ -23,7 +23,7 @@ class TodoModel extends Equatable {
   final String syncStatus; // pending | synced | conflict
   final String? deviceId; // Device that made the change
 
-  const TodoModel({
+  TodoModel({
     required this.id,
     required this.title,
     this.description,
@@ -40,7 +40,14 @@ class TodoModel extends Equatable {
     this.version = 0,
     this.syncStatus = 'synced',
     this.deviceId,
-  });
+  }) {
+    if (title.trim().isEmpty) {
+      throw ArgumentError('Todo title cannot be empty');
+    }
+    if (title.trim().split(RegExp(r'\s+')).length > 15) {
+      throw ArgumentError('Todo title cannot exceed 15 words');
+    }
+  }
 
   /// Whether the todo is due today
   bool get isDueToday {
