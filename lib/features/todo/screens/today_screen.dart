@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../providers/providers.dart';
 import '../../../domain/models/models.dart';
 import '../widgets/todo_card.dart';
+import '../../settings/widgets/update_prompt_dialog.dart';
 
 /// Today screen for beginner mode - simplified todo view.
 class TodayScreen extends ConsumerWidget {
@@ -12,6 +13,22 @@ class TodayScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    
+    // Listen for app updates
+    ref.listen(appUpdateProvider, (previous, next) {
+      if (next case AsyncData(:final value)) {
+        if (value.updateAvailable && value.downloadUrl != null && value.downloadUrl!.isNotEmpty) {
+          UpdatePromptDialog.show(
+            context,
+            latestVersion: value.latestVersion,
+            currentVersion: value.currentVersion,
+            downloadUrl: value.downloadUrl!,
+            isMandatory: value.isMandatory,
+          );
+        }
+      }
+    });
+
     final todayTodosAsync = ref.watch(todayTodosProvider);
     final allTodosAsync = ref.watch(pendingTodosProvider);
     final today = DateTime.now();

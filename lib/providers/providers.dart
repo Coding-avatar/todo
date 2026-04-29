@@ -3,3 +3,4 @@ export 'user_provider.dart';
 export 'todo_provider.dart';
 export 'habit_provider.dart';
 export 'settings_provider.dart';
+export 'app_update_provider.dart';
