@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/router/route_names.dart';
 import '../../../providers/providers.dart';
 import '../../../domain/models/models.dart';
 import '../../../core/enums/enums.dart';
@@ -35,6 +37,13 @@ class _TodoListScreenState extends ConsumerState<TodoListScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tasks'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push(RoutePaths.settings),
+            tooltip: 'Settings',
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [

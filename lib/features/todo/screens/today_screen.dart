@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../providers/providers.dart';
 import '../../../domain/models/models.dart';
+import '../../../core/router/route_names.dart';
 import '../widgets/todo_card.dart';
+import '../../habit/widgets/habit_card.dart';
 import '../../settings/widgets/update_prompt_dialog.dart';
 
-/// Today screen for beginner mode - simplified todo view.
+/// Today screen for beginner mode - tasks and habits view.
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
 
@@ -30,7 +33,8 @@ class TodayScreen extends ConsumerWidget {
     });
 
     final todayTodosAsync = ref.watch(todayTodosProvider);
-    final allTodosAsync = ref.watch(pendingTodosProvider);
+    final activeHabitsAsync = ref.watch(activeHabitsProvider);
+    final todayCompletion = ref.watch(todayCompletionProvider);
     final today = DateTime.now();
 
     return Scaffold(
@@ -46,15 +50,22 @@ class TodayScreen extends ConsumerWidget {
           ],
         ),
         toolbarHeight: 70,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push(RoutePaths.settings),
+            tooltip: 'Settings',
+          ),
+        ],
       ),
       body: todayTodosAsync.when(
-        data: (todayTodos) => allTodosAsync.when(
-          data: (allTodos) => _buildContent(context, ref, todayTodos, allTodos),
+        data: (todos) => activeHabitsAsync.when(
+          data: (habits) => _buildContent(context, ref, todos, habits, todayCompletion),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Error: $e')),
+          error: (e, _) => Center(child: Text('Error loading habits: $e')),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text('Error loading tasks: $e')),
       ),
     );
   }
@@ -62,50 +73,29 @@ class TodayScreen extends ConsumerWidget {
   Widget _buildContent(
     BuildContext context,
     WidgetRef ref,
-    List<TodoModel> todayTodos,
-    List<TodoModel> allTodos,
+    List<TodoModel> todos,
+    List<HabitModel> habits,
+    Map<String, bool> todayCompletion,
   ) {
     final theme = Theme.of(context);
 
-    // Separate overdue todos
-    final overdueTodos = allTodos.where((t) => t.isOverdue).toList();
-    final noDueDateTodos = allTodos.where((t) => t.dueDate == null).toList();
-
-    if (todayTodos.isEmpty && overdueTodos.isEmpty && noDueDateTodos.isEmpty) {
+    if (todos.isEmpty && habits.isEmpty) {
       return _buildEmptyState(context);
     }
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Overdue section
-        if (overdueTodos.isNotEmpty) ...[
+        // Today's Tasks Section
+        if (todos.isNotEmpty) ...[
           _buildSectionHeader(
             context,
-            'Overdue',
-            Icons.warning_amber_rounded,
-            theme.colorScheme.error,
-          ),
-          const SizedBox(height: 8),
-          ...overdueTodos.map(
-            (todo) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: TodoCard(todo: todo, showDueDate: true),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // Today section
-        if (todayTodos.isNotEmpty) ...[
-          _buildSectionHeader(
-            context,
-            'Due Today',
-            Icons.today,
+            'Tasks',
+            Icons.task_alt,
             theme.colorScheme.primary,
           ),
           const SizedBox(height: 8),
-          ...todayTodos.map(
+          ...todos.map(
             (todo) => Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: TodoCard(todo: todo),
@@ -114,28 +104,28 @@ class TodayScreen extends ConsumerWidget {
           const SizedBox(height: 16),
         ],
 
-        // No due date section (show first 5)
-        if (noDueDateTodos.isNotEmpty) ...[
+        // Habits Section
+        if (habits.isNotEmpty) ...[
           _buildSectionHeader(
             context,
-            'Other Tasks',
-            Icons.list,
+            'Habits',
+            Icons.repeat,
             theme.colorScheme.secondary,
           ),
           const SizedBox(height: 8),
-          ...noDueDateTodos
-              .take(5)
-              .map(
-                (todo) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: TodoCard(todo: todo),
+          ...habits.map(
+            (habit) {
+              final isCompletedToday = todayCompletion[habit.id] ?? false;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: HabitCard(
+                  habit: habit,
+                  isCompletedToday: isCompletedToday,
                 ),
-              ),
-          if (noDueDateTodos.length > 5)
-            TextButton(
-              onPressed: () {},
-              child: Text('See ${noDueDateTodos.length - 5} more'),
-            ),
+              );
+            }
+          ),
+          const SizedBox(height: 16),
         ],
       ],
     );
@@ -150,9 +140,9 @@ class TodayScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Icon(icon, size: 18, color: color),
+        Icon(icon, size: 20, color: color),
         const SizedBox(width: 8),
-        Text(title, style: theme.textTheme.titleSmall?.copyWith(color: color)),
+        Text(title, style: theme.textTheme.titleMedium?.copyWith(color: color, fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -183,7 +173,7 @@ class TodayScreen extends ConsumerWidget {
             Text('All caught up!', style: theme.textTheme.headlineSmall),
             const SizedBox(height: 8),
             Text(
-              'No tasks for today. Add something to get started.',
+              'No tasks or habits for today. Add something to get started.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/router/route_names.dart';
 import '../../../providers/providers.dart';
 import '../../../domain/models/models.dart';
 
@@ -15,6 +17,13 @@ class PriorityMatrixScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Priority Matrix'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push(RoutePaths.settings),
+            tooltip: 'Settings',
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8),

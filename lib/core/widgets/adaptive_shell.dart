@@ -76,10 +76,10 @@ class AdaptiveShell extends ConsumerWidget {
             isAddButton: true,
           ),
           _NavItem(
-            icon: Icons.person_outline,
-            activeIcon: Icons.person,
-            label: 'Me',
-            path: RoutePaths.settings,
+            icon: Icons.insights_outlined,
+            activeIcon: Icons.insights,
+            label: 'Insights',
+            path: RoutePaths.insights,
           ),
         ];
 
@@ -102,12 +102,6 @@ class AdaptiveShell extends ConsumerWidget {
             activeIcon: Icons.insights,
             label: 'Insights',
             path: RoutePaths.insights,
-          ),
-          _NavItem(
-            icon: Icons.settings_outlined,
-            activeIcon: Icons.settings,
-            label: 'Settings',
-            path: RoutePaths.settings,
           ),
         ];
 
@@ -136,12 +130,6 @@ class AdaptiveShell extends ConsumerWidget {
             activeIcon: Icons.insights,
             label: 'Insights',
             path: RoutePaths.insights,
-          ),
-          _NavItem(
-            icon: Icons.settings_outlined,
-            activeIcon: Icons.settings,
-            label: 'Settings',
-            path: RoutePaths.settings,
           ),
         ];
     }
