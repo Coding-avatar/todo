@@ -115,6 +115,7 @@ class HabitRepository {
     if (habit != null) {
       final updated = habit.copyWithSync(
         active: active,
+        isFuture: !active, // Move to wishlist when archived, and vice versa
         syncStatus: 'pending',
         deviceId: _localStorage.getDeviceId(),
       );

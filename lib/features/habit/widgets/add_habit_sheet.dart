@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/providers.dart';
-import '../../../domain/models/models.dart';
+
 import '../../../core/enums/enums.dart';
 
 /// Bottom sheet for adding a new habit.
@@ -19,7 +19,6 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  Category? _selectedCategory;
   DateTime? _startDate;
   bool _isLoading = false;
 
@@ -47,14 +46,10 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
               : _descriptionController.text.trim())
           : null;
 
-      final categoryId = userLevel.index >= UserLevel.intermediate.index
-          ? (_selectedCategory?.id == 'none' ? null : _selectedCategory?.id)
-          : null;
-
       await ref.read(habitNotifierProvider.notifier).createHabit(
             name: _nameController.text.trim(),
             description: description,
-            categoryId: categoryId,
+            categoryId: null,
             startDate: _startDate,
             isFuture: widget.isFuture,
           );
@@ -81,8 +76,6 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final userLevel = ref.watch(userLevelProvider);
-    final categories = ref.watch(userCategoriesProvider);
-    _selectedCategory ??= categories.firstWhere((c) => c.id == 'none', orElse: () => categories.first);
 
     return Container(
       padding: EdgeInsets.only(
@@ -142,38 +135,6 @@ class _AddHabitSheetState extends ConsumerState<AddHabitSheet> {
                   maxLines: 2,
                 ),
                 const SizedBox(height: 16),
-              ],
-
-              // Category (Intermediate+)
-              if (userLevel.index >= UserLevel.intermediate.index) ...
-              [
-                Text(
-                  'Category (optional)',
-                  style: theme.textTheme.labelLarge,
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    ...categories.map((category) {
-                      final isSelected = _selectedCategory?.id == category.id;
-                      return FilterChip(
-                        selected: isSelected,
-                        label: Text(category.name),
-                        avatar: CircleAvatar(
-                          backgroundColor: category.color,
-                          radius: 8,
-                        ),
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedCategory = category;
-                          });
-                        },
-                      );
-                    }),
-                  ],
-                ),
               ],
 
               if (widget.isFuture) ...[

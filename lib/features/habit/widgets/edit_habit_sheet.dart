@@ -19,7 +19,6 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
 
-  Category? _selectedCategory;
   bool _isLoading = false;
 
   @override
@@ -28,11 +27,6 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
     _nameController = TextEditingController(text: widget.habit.name);
     _descriptionController = TextEditingController(
       text: widget.habit.description ?? '',
-    );
-    final categories = ref.read(userCategoriesProvider);
-    _selectedCategory = categories.firstWhere(
-      (c) => c.id == widget.habit.categoryId || (widget.habit.categoryId == null && c.id == 'none'),
-      orElse: () => categories.firstWhere((c) => c.id == 'none'),
     );
   }
 
@@ -60,14 +54,10 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
               : _descriptionController.text.trim())
           : widget.habit.description; // Preserve existing value if hidden
 
-      final categoryId = userLevel.index >= UserLevel.intermediate.index
-          ? (_selectedCategory?.id == 'none' ? null : _selectedCategory?.id)
-          : widget.habit.categoryId; // Preserve existing value if hidden
-
       final updated = widget.habit.copyWith(
         name: _nameController.text.trim(),
         description: description,
-        categoryId: categoryId,
+        categoryId: widget.habit.categoryId, // Preserve existing value
       );
 
       await ref.read(habitNotifierProvider.notifier).updateHabit(updated);
@@ -140,7 +130,6 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final userLevel = ref.watch(userLevelProvider);
-    final categories = ref.watch(userCategoriesProvider);
     final streakAsync = ref.watch(habitStreakProvider(widget.habit.id));
 
     return Container(
@@ -244,36 +233,6 @@ class _EditHabitSheetState extends ConsumerState<EditHabitSheet> {
                   maxLines: 2,
                 ),
                 const SizedBox(height: 16),
-              ],
-
-              // Category (Intermediate+)
-              if (userLevel.index >= UserLevel.intermediate.index) ...
-              [
-                Text('Category (optional)', style: theme.textTheme.labelLarge),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    ...categories.map((category) {
-                      final isSelected = _selectedCategory?.id == category.id;
-                      return FilterChip(
-                        selected: isSelected,
-                        label: Text(category.name),
-                        avatar: CircleAvatar(
-                          backgroundColor: category.color,
-                          radius: 8,
-                        ),
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedCategory = category;
-                          });
-                        },
-                      );
-                    }),
-                  ],
-                ),
-                const SizedBox(height: 24),
               ]
               else
                 const SizedBox(height: 16),
