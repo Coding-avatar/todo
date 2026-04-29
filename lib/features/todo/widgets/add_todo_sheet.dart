@@ -136,13 +136,18 @@ class _AddTodoSheetState extends ConsumerState<AddTodoSheet> {
       ),
       child: Form(
         key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
                 'New Task',
                 style: theme.textTheme.headlineSmall,
                 textAlign: TextAlign.center,
@@ -339,24 +344,28 @@ class _AddTodoSheetState extends ConsumerState<AddTodoSheet> {
                   maxLines: 2,
                 ),
               ],
-              const SizedBox(height: 24),
-
-              // Submit button
-              ElevatedButton(
-                onPressed: _isLoading ? null : _handleSubmit,
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Create Task'),
-              ),
+              const SizedBox(height: 40),
             ],
           ),
         ),
       ),
-    );
+      Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        child: ElevatedButton(
+          onPressed: _isLoading ? null : _handleSubmit,
+          child: _isLoading
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Create Task'),
+        ),
+      ),
+    ],
+  ),
+  ),
+);
   }
 
   Future<void> _pickDueDate() async {
