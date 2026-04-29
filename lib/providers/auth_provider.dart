@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/repositories/repositories.dart';
+import '../data/local/local_storage_service.dart';
 import '../domain/models/models.dart';
 import 'user_provider.dart';
 
@@ -179,6 +180,8 @@ class AuthNotifier extends AsyncNotifier<void> {
   // ────────────────────── Common ──────────────────────
 
   Future<void> signOut() async {
+    // Clear local data to prevent cross-account sync issues
+    await LocalStorageService().clearAllData();
     await ref.read(authRepositoryProvider).signOut();
   }
 
