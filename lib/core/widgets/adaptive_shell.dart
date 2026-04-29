@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../core/enums/enums.dart';
 import '../router/route_names.dart';
+import '../../features/todo/widgets/add_todo_sheet.dart';
+import '../../features/habit/widgets/add_habit_sheet.dart';
 
 /// Adaptive shell with bottom navigation that changes based on user level.
 class AdaptiveShell extends ConsumerWidget {
@@ -236,28 +238,20 @@ class _AddOptionsSheet extends StatelessWidget {
   }
 
   void _showAddTodoSheet(BuildContext context) {
-    // This will be handled by the actual add todo sheet
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) => const Padding(
-        padding: EdgeInsets.all(24),
-        child: Text('Add Todo Sheet - Coming in feature implementation'),
-      ),
+      builder: (context) => const AddTodoSheet(),
     );
   }
 
   void _showAddHabitSheet(BuildContext context) {
-    // This will be handled by the actual add habit sheet
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) => const Padding(
-        padding: EdgeInsets.all(24),
-        child: Text('Add Habit Sheet - Coming in feature implementation'),
-      ),
+      builder: (context) => const AddHabitSheet(),
     );
   }
 }
