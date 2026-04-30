@@ -32,7 +32,7 @@ class TodayScreen extends ConsumerWidget {
       }
     });
 
-    final todayTodosAsync = ref.watch(todayTodosProvider);
+    final todayTodosAsync = ref.watch(allTodosProvider);
     final activeHabitsAsync = ref.watch(activeHabitsProvider);
     final todayCompletion = ref.watch(todayCompletionProvider);
     final today = DateTime.now();
@@ -83,50 +83,99 @@ class TodayScreen extends ConsumerWidget {
       return _buildEmptyState(context);
     }
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    return Column(
       children: [
-        // Today's Tasks Section
-        if (todos.isNotEmpty) ...[
-          _buildSectionHeader(
-            context,
-            'Tasks',
-            Icons.task_alt,
-            theme.colorScheme.primary,
+        // Tasks Section
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: _buildSectionHeader(
+                  context,
+                  'Tasks',
+                  Icons.task_alt,
+                  theme.colorScheme.primary,
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    if (todos.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: Text(
+                          'No tasks yet',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      )
+                    else ...[
+                      ...todos.map(
+                        (todo) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: TodoCard(todo: todo),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          ...todos.map(
-            (todo) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: TodoCard(todo: todo),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
+        ),
+
+        // Divider
+        const Divider(height: 1),
 
         // Habits Section
-        if (habits.isNotEmpty) ...[
-          _buildSectionHeader(
-            context,
-            'Habits',
-            Icons.repeat,
-            theme.colorScheme.secondary,
-          ),
-          const SizedBox(height: 8),
-          ...habits.map(
-            (habit) {
-              final isCompletedToday = todayCompletion[habit.id] ?? false;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: HabitCard(
-                  habit: habit,
-                  isCompletedToday: isCompletedToday,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: _buildSectionHeader(
+                  context,
+                  'Habits',
+                  Icons.repeat,
+                  theme.colorScheme.secondary,
                 ),
-              );
-            }
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    if (habits.isEmpty)
+                      Text(
+                        'No habits yet',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      )
+                    else
+                      ...habits.map(
+                        (habit) {
+                          final isCompletedToday = todayCompletion[habit.id] ?? false;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: HabitCard(
+                              habit: habit,
+                              isCompletedToday: isCompletedToday,
+                            ),
+                          );
+                        }
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-        ],
+        ),
       ],
     );
   }

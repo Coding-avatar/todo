@@ -14,6 +14,8 @@ class SettingsScreen extends ConsumerWidget {
     final userAsync = ref.watch(userProfileProvider);
     final user = userAsync.valueOrNull;
     final userLevel = ref.watch(userLevelProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    final themeName = themeMode.name.substring(0, 1).toUpperCase() + themeMode.name.substring(1);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -89,7 +91,7 @@ class SettingsScreen extends ConsumerWidget {
               _SettingsTile(
                 icon: Icons.dark_mode_outlined,
                 title: 'Theme',
-                subtitle: 'System default',
+                subtitle: themeName,
                 onTap: () => _showThemeDialog(context, ref),
               ),
               _SettingsTile(
@@ -212,27 +214,33 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   void _showThemeDialog(BuildContext context, WidgetRef ref) {
+    final currentTheme = ref.read(themeModeProvider);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Theme'),
-        content: RadioGroup<String>(
-          groupValue: 'system',
-          onChanged: (value) => Navigator.pop(context),
+        content: RadioGroup<ThemeMode>(
+          groupValue: currentTheme,
+          onChanged: (value) {
+            if (value != null) {
+              ref.read(settingsProvider.notifier).setThemeMode(value);
+            }
+            Navigator.pop(context);
+          },
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: const [
-              RadioListTile<String>(
+              RadioListTile<ThemeMode>(
                 title: Text('System'),
-                value: 'system',
+                value: ThemeMode.system,
               ),
-              RadioListTile<String>(
+              RadioListTile<ThemeMode>(
                 title: Text('Light'),
-                value: 'light',
+                value: ThemeMode.light,
               ),
-              RadioListTile<String>(
+              RadioListTile<ThemeMode>(
                 title: Text('Dark'),
-                value: 'dark',
+                value: ThemeMode.dark,
               ),
             ],
           ),

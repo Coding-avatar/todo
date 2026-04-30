@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router/router.dart';
+import 'providers/providers.dart';
 import 'services/notification_service.dart';
 import 'data/local/local_storage_service.dart';
 import 'data/local/hive_adapters/hive_todo_adapter.dart';
@@ -75,7 +76,7 @@ class TodoApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: router,
     );
   }
