@@ -82,13 +82,15 @@ class PriorityMatrixScreen extends ConsumerWidget {
                           child: Row(
                             children: [
                               _MatrixQuadrant(
-                                title: 'Do First',
+                                title: 'Urgent',
+                                priority: 1,
                                 color: const Color(0xFFEF4444),
                                 todos: todosByPriority[1] ?? [],
                               ),
                               const SizedBox(width: 8),
                               _MatrixQuadrant(
-                                title: 'Schedule',
+                                title: 'High',
+                                priority: 2,
                                 color: const Color(0xFFF59E0B),
                                 todos: todosByPriority[2] ?? [],
                               ),
@@ -100,13 +102,15 @@ class PriorityMatrixScreen extends ConsumerWidget {
                           child: Row(
                             children: [
                               _MatrixQuadrant(
-                                title: 'Delegate',
+                                title: 'Medium',
+                                priority: 3,
                                 color: const Color(0xFF3B82F6),
                                 todos: todosByPriority[3] ?? [],
                               ),
                               const SizedBox(width: 8),
                               _MatrixQuadrant(
-                                title: 'Eliminate',
+                                title: 'Low',
+                                priority: 4,
                                 color: const Color(0xFF94A3B8),
                                 todos: todosByPriority[4] ?? [],
                               ),
@@ -126,29 +130,42 @@ class PriorityMatrixScreen extends ConsumerWidget {
   }
 }
 
-class _MatrixQuadrant extends StatelessWidget {
+class _MatrixQuadrant extends ConsumerWidget {
   final String title;
+  final int priority;
   final Color color;
   final List<TodoModel> todos;
 
   const _MatrixQuadrant({
     required this.title,
+    required this.priority,
     required this.color,
     required this.todos,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Expanded(
-      child: Container(
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withValues(alpha: 0.3),
-          ),
+      child: DragTarget<TodoModel>(
+        onAcceptWithDetails: (details) {
+          final todo = details.data;
+          if (todo.priority != priority) {
+            final updated = todo.copyWith(priority: priority);
+            ref.read(todoNotifierProvider.notifier).updateTodo(updated);
+          }
+        },
+        builder: (context, candidateData, rejectedData) {
+          final isHovering = candidateData.isNotEmpty;
+          return Container(
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: isHovering ? 0.2 : 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: color.withValues(alpha: isHovering ? 0.6 : 0.3),
+                width: isHovering ? 2 : 1,
+              ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -217,6 +234,8 @@ class _MatrixQuadrant extends StatelessWidget {
             ),
           ],
         ),
+          );
+        },
       ),
     );
   }
@@ -235,44 +254,47 @@ class _CompactTodoTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    return Padding(
+    final child = Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Material(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(8),
-        child: InkWell(
-          onTap: () {
-            // Edit todo
-          },
-          borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    ref.read(todoNotifierProvider.notifier).completeTodo(todo.id);
-                  },
-                  child: Icon(
-                    Icons.radio_button_unchecked,
-                    size: 18,
-                    color: color,
-                  ),
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  todo.title,
+                  style: theme.textTheme.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    todo.title,
-                    style: theme.textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
+    );
+
+    return LongPressDraggable<TodoModel>(
+      data: todo,
+      feedback: Material(
+        color: Colors.transparent,
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.4,
+          child: Opacity(
+            opacity: 0.8,
+            child: child,
+          ),
+        ),
+      ),
+      childWhenDragging: Opacity(
+        opacity: 0.3,
+        child: child,
+      ),
+      child: child,
     );
   }
 }
